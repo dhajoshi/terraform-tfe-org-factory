@@ -2,39 +2,11 @@
     "workspaces": [
         {
             "name": "app1-aws-staging",
-            "description": "Staging workspace for App 1",
-            "teams": [
-                {
-                    "name": "org_admins",
-                    "access_level": "admin"
-                },
-                {
-                    "name": "app1-developers",
-                    "access_level": "plan"
-                },
-                {
-                    "name": "security",
-                    "access_level": "read"
-                }
-            ]
+            "description": "Staging workspace for App 1"
         },
         {
             "name": "app1-aws-dev",
-            "teams": [
-                {
-                    "name": "org_admins",
-                    "access_level": "admin"
-                },
-                {
-                    "name": "app1-developers",
-                    "access_level": "plan"
-                },
-                {
-                    "name": "security",
-                    "access_level": "read"
-                }
-            ],
-            "terraform_version": "1.1.0",
+            "terraform_version": "1.8.0",
             "tag_names": [
                 "app1",
                 "development"
@@ -43,42 +15,12 @@
         {
             "name": "app1-aws-prod",
             "description": "Production workspace for App 1",
-            "terraform_version": "1.1.0",
+            "terraform_version": "1.8.0",
             "tag_names": [
                 "app1",
                 "prod"
             ]
         }
-    ],
-    "teams": [
-        {
-            "name": "org_admins",
-            "organization_access": {
-                "manage_policies": true,
-                "manage_workspaces": true,
-                "manage_vcs_settings": true
-            },
-            "members": [
-                "bob@example.com"
-            ]
-        },
-        {
-            "name": "app1-developers",
-            "visibility": "organization",
-            "members": [
-                "sally@example.com",
-                "cho@example.com"
-            ]
-        },
-        {
-            "name": "security",
-            "visibility": "organization",
-            "organization_access": {
-                "manage_policies": true,
-                "manage_policy_overrides": false,
-                "manage_workspaces": false,
-                "manage_vcs_settings": false
-            }
-        }
     ]
+ 
 }

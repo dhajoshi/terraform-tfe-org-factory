@@ -4,4 +4,5 @@ module "tfe_workspace" {
 
   organization_name = var.organization_name
   config_file_path  = var.config_file_path
+  project_name      = var.project_name_new
 }

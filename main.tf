@@ -30,6 +30,7 @@ locals {
     vcs_repo            = try(workspace["vcs_repo"], {})
   }]
 
+/*
   #Create a list of workspace access entries
   workspace_team_access = flatten([
     for workspace in local.workspaces : [
@@ -51,8 +52,24 @@ locals {
     organization_access = try(team["organization_access"], {})
     members             = try(team["members"], [])
   }]
+*/
 
 }
+
+# Check for project exist
+data "tfe_project" "tfeproject" {
+   name = var.project_name_new
+   organization = local.organization_name
+}
+
+
+# Use a dedicated project for this workspace
+resource "tfe_project" "myproject" {
+  count        = var.create_new_project ? 1 : 0
+  organization = local.organization_name
+  name         = var.project_name_new
+}
+
 
 # Create workspaces
 resource "tfe_workspace" "workspaces" {
@@ -68,6 +85,7 @@ resource "tfe_workspace" "workspaces" {
   allow_destroy_plan  = each.value["allow_destroy_plan"]
   execution_mode      = each.value["execution_mode"]
   speculative_enabled = each.value["speculative_enabled"]
+  project_id          = data.tfe_project.tfeproject.id
 
   # Create a single vcs_repo block if value isn't an empty map
   dynamic "vcs_repo" {
@@ -80,6 +98,7 @@ resource "tfe_workspace" "workspaces" {
   }
 }
 
+/*
 # Create teams
 resource "tfe_team" "teams" {
   # Create a map of teams from the list stored in JSON using the 
@@ -139,3 +158,4 @@ resource "tfe_team_organization_member" "team_members" {
   team_id                    = tfe_team.teams[each.value["team_name"]].id
   organization_membership_id = tfe_organization_membership.org_members[each.value["member_name"]].id
 }
+*/
