@@ -36,3 +36,9 @@ variable "project_name_new" {
   description = "(Required) Name of organization to use for resource management."
   default     = "dj_test_project"
 }
+
+variable "oauth_token_id" {
+  type        = string
+  description = "(Required) Auth token for VCS Connection"
+  sensitive   =  true
+}

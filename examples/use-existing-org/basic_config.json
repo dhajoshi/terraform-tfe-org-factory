@@ -10,7 +10,11 @@
             "tag_names": [
                 "app1",
                 "development"
-            ]
+            ],
+            
+            "vcs_repo": {
+                "identifier": "dhajoshi/test"
+             }
         },
         {
             "name": "app1-aws-prod",
@@ -19,8 +23,14 @@
             "tag_names": [
                 "app1",
                 "prod"
-            ]
+            ],
+
+            "vcs_repo": {
+                "identifier": "dhajoshi/test"
+             }
         }
+
+    
     ]
  
 }

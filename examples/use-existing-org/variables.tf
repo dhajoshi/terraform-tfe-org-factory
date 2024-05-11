@@ -1,6 +1,7 @@
 variable "organization_name" {
   type        = string
   description = "(Required) Name of existing organization to manage."
+  default     = "dhajoshi-infra"
 }
 
 variable "config_file_path" {
@@ -13,4 +14,10 @@ variable "project_name_new" {
   type        = string
   description = "(Required) Name of organization to use for resource management."
   default     = "dj_test_project"
+}
+
+variable "oauth_token_id" {
+  type        = string
+  description = "(Required) Auth token for VCS Connection"
+  sensitive   =  true
 }
