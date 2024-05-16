@@ -3,10 +3,10 @@ variable "organization_name" {
   description = "(Required) Name of organization to use for resource management."
 }
 
-variable "project_name" {
-  type        = string
-  description = "(Required) Name of organization to use for resource management."
-}
+#variable "project_name" {
+#  type        = string
+#  description = "(Required) Name of organization to use for resource management."
+#}
 
 variable "create_new_project" {
   type        = bool
@@ -31,11 +31,11 @@ variable "config_file_path" {
   type        = string
 }
 
-variable "project_name_new" {
-  type        = string
-  description = "(Required) Name of organization to use for resource management."
-  default     = "dj_test_project"
-}
+#variable "project_name_new" {
+#  type        = string
+#  description = "(Required) Name of organization to use for resource management."
+#  default     = "dj_test_project"
+# }
 
 variable "oauth_token_id" {
   type        = string

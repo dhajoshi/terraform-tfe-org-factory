@@ -16,6 +16,27 @@ locals {
   # Try to extract the workspace data
   raw_workspaces = try(local.org_data.workspaces, [])
 
+  # Try to extract the project data
+  raw_projects = try(local.org_data.projects, [])
+
+  # Normalize the Project data
+  projects = [for project in local.raw_projects : {
+    name        = project["name"]
+    description = try(project["descripton"], "No description provided.")
+    teams       = try(project["teams"], [])
+  }]
+
+  # Create a list of project access entries
+  project_team_access = flatten([
+    for project in local.projects : [
+      for team in project["teams"] : {
+        project_name = project["name"]
+        team_name    = team["name"]
+        access_level = team["access_level"]
+      }
+    ]
+  ])
+
   # Normalize the workspace data, at the very least it needs to have a name
   workspaces = [for workspace in local.raw_workspaces : {
     name                = workspace["name"]
@@ -28,9 +49,10 @@ locals {
     execution_mode      = try(workspace["execution_mode"], "remote")
     speculative_enabled = try(workspace["speculative_enabled"], true)
     vcs_repo            = try(workspace["vcs_repo"], {})
+    project_id          = try(workspace["project_id"], "prj-GMQmXHMWyhe46heo")
   }]
 
-/*
+
   #Create a list of workspace access entries
   workspace_team_access = flatten([
     for workspace in local.workspaces : [
@@ -52,23 +74,25 @@ locals {
     organization_access = try(team["organization_access"], {})
     members             = try(team["members"], [])
   }]
-*/
+
 
 }
-
-# Check for project exist
-data "tfe_project" "tfeproject" {
-   name = var.project_name_new
-   organization = local.organization_name
-}
-
 
 # Use a dedicated project for this workspace
 resource "tfe_project" "myproject" {
-  count        = var.create_new_project ? 1 : 0
+  for_each     = { for project in local.projects : project["name"] => project }
   organization = local.organization_name
-  name         = var.project_name_new
+  name         = each.key
+  description  = each.value["description"]
 }
+
+
+# Check for project exist
+#data "tfe_project" "tfeproject" {
+#   for_each = { for project in local.projects : project["name"] => project }
+#   name = "dj_test_project"
+#   organization = local.organization_name
+#}
 
 
 # Create workspaces
@@ -85,7 +109,7 @@ resource "tfe_workspace" "workspaces" {
   allow_destroy_plan  = each.value["allow_destroy_plan"]
   execution_mode      = each.value["execution_mode"]
   speculative_enabled = each.value["speculative_enabled"]
-  project_id          = data.tfe_project.tfeproject.id
+  project_id          = each.value["project_id"]
  # oauth_token_id      = var.oauth_token_id
 
   # Create a single vcs_repo block if value isn't an empty map
@@ -100,7 +124,7 @@ resource "tfe_workspace" "workspaces" {
   }
 }
 
-/*
+
 # Create teams
 resource "tfe_team" "teams" {
   # Create a map of teams from the list stored in JSON using the 
@@ -133,6 +157,14 @@ resource "tfe_team_access" "team_access" {
   workspace_id = tfe_workspace.workspaces[each.value["workspace_name"]].id
 }
 
+# Configure Project access for teams
+resource "tfe_team_project_access" "project_team_access" {
+  for_each = { for access in local.project_team_access : "${access.project_name}_${access.team_name}" => access }
+  access  = each.value["access_level"]
+  team_id  = tfe_team.teams[each.value["team_name"]].id
+  project_id  = tfe_project.myproject[each.value["project_name"]].id
+}
+
 # Add TFC accounts to the organization
 resource "tfe_organization_membership" "org_members" {
   for_each     = toset(flatten(local.teams.*.members))
@@ -160,4 +192,3 @@ resource "tfe_team_organization_member" "team_members" {
   team_id                    = tfe_team.teams[each.value["team_name"]].id
   organization_membership_id = tfe_organization_membership.org_members[each.value["member_name"]].id
 }
-*/
