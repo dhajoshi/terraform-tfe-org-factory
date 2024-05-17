@@ -124,7 +124,7 @@ resource "tfe_workspace" "workspaces" {
   }
 }
 
-
+/*
 # Create teams
 resource "tfe_team" "teams" {
   # Create a map of teams from the list stored in JSON using the 
@@ -147,21 +147,28 @@ resource "tfe_team" "teams" {
     }
   }
 }
+*/
 
+data "tfe_team" "teams" {
+  for_each     = { for team in local.teams : team["name"] => team }
+  name         = each.key
+  organization = local.organization_name
+}
 
 # Configure workspace access for teams
 resource "tfe_team_access" "team_access" {
   for_each     = { for access in local.workspace_team_access : "${access.workspace_name}_${access.team_name}" => access }
   access       = each.value["access_level"]
-  team_id      = tfe_team.teams[each.value["team_name"]].id
+  team_id      = data.tfe_team.teams[each.value["team_name"]].id
+  #team_id      = tfe_team.teams[each.value["team_name"]].id
   workspace_id = tfe_workspace.workspaces[each.value["workspace_name"]].id
 }
 
 # Configure Project access for teams
 resource "tfe_team_project_access" "project_team_access" {
-  for_each = { for access in local.project_team_access : "${access.project_name}_${access.team_name}" => access }
-  access  = each.value["access_level"]
-  team_id  = tfe_team.teams[each.value["team_name"]].id
+  for_each    = { for access in local.project_team_access : "${access.project_name}_${access.team_name}" => access }
+  access      = each.value["access_level"]
+  team_id     = tfe_team.teams[each.value["team_name"]].id
   project_id  = tfe_project.myproject[each.value["project_name"]].id
 }
 
