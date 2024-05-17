@@ -168,7 +168,8 @@ resource "tfe_team_access" "team_access" {
 resource "tfe_team_project_access" "project_team_access" {
   for_each    = { for access in local.project_team_access : "${access.project_name}_${access.team_name}" => access }
   access      = each.value["access_level"]
-  team_id     = tfe_team.teams[each.value["team_name"]].id
+  team_id      = data.tfe_team.teams[each.value["team_name"]].id
+#  team_id     = tfe_team.teams[each.value["team_name"]].id
   project_id  = tfe_project.myproject[each.value["project_name"]].id
 }
 
