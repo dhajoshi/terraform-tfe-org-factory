@@ -197,6 +197,7 @@ locals {
 resource "tfe_team_organization_member" "team_members" {
   # Create a map with the team name and member name combines as a key for uniqueness
   for_each                   = { for member in local.team_members : "${member.team_name}_${member.member_name}" => member }
-  team_id                    = tfe_team.teams[each.value["team_name"]].id
+  team_id                    = data.tfe_team.teams[each.value["team_name"]].id
+#  team_id                    = tfe_team.teams[each.value["team_name"]].id
   organization_membership_id = tfe_organization_membership.org_members[each.value["member_name"]].id
 }
