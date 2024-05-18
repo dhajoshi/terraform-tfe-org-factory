@@ -1,0 +1,34 @@
+workspace_team_access = flatten([
+    for workspace in local.workspaces : [
+      for team in workspace["teams"] : {
+        workspace_name = workspace["name"]
+        team_name      = team["name"]
+        access_level   = team["access_level"]
+      }
+    ]
+  ])
+
+  workspace_team_access = [
+    {
+    "workspace_name" = "123"
+    "team_name"  = "test"
+    "access_level" = "admin"
+    },
+    {
+        "workspace_name" = "123"
+        "team_name"  = "test"
+        "access_level" = "admin"
+    },
+
+  ]
+
+  resource "tfe_team_access" "team_access" {
+    for_each     = { for access in local.workspace_team_access : "${access.workspace_name}_${access.team_name}" => access }
+    access       = each.value["access_level"]
+    team_id      = data.tfe_team.teams[each.value["${access.workspace_name}_${access.team_name}"]].id
+    #team_id      = tfe_team.teams[each.value["team_name"]].id
+    workspace_id = tfe_workspace.workspaces[each.value["workspace_name"]].id
+  }
+
+  123_test = 123
+

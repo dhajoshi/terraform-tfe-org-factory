@@ -2,43 +2,19 @@
     "projects": [
         {
             "name": "TestProject",
-            "organization": "dhajoshi-infra",
-            "teams": [
-                {
-                    "name": "project_admin",
-                    "access_level": "admin"
-                },
-                {
-                    "name": "project_read",
-                    "access_level": "read"
-                }
-            ]
+            "organization": "dhajoshi-infra"
         }
     ],
     "workspaces": [
         {
             "name": "app1-aws-staging",
             "description": "Staging workspace for App 1",
-            "project_id": "prj-CLjBmLaAaApjCUUq",
-            "teams": [
-                {
-                    "name": "org_admins",
-                    "access_level": "admin"
-                },
-                {
-                    "name": "app1-developers",
-                    "access_level": "plan"
-                },
-                {
-                    "name": "security",
-                    "access_level": "read"
-                }
-            ]
+            "project_id": "TestProject"
         },
         {
             "name": "app1-aws-dev",
             "terraform_version": "1.8.0",
-            "project_id": "prj-CLjBmLaAaApjCUUq",
+            "project_id": "TestProject",
             "tag_names": [
                 "app1",
                 "development"
@@ -51,7 +27,7 @@
         {
             "name": "app1-aws-prod",
             "description": "Production workspace for App 1",
-            "project_id": "prj-CLjBmLaAaApjCUUq",
+            "project_id": "TestProject",
             "terraform_version": "1.8.0",
             "tag_names": [
                 "app1",
@@ -63,49 +39,6 @@
              }
         }
  
-    ],
-    "teams": [
-        {
-            "name": "org_admins",
-            "organization_access": {
-                "manage_policies": true,
-                "manage_workspaces": true,
-                "manage_vcs_settings": true
-            },
-            "members": [
-                "bob@example.com"
-            ]
-        },
-        {
-            "name": "app1-developers",
-            "visibility": "organization",
-            "members": [
-                "sally@example.com",
-                "cho@example.com"
-            ]
-        },
-        {
-            "name": "security",
-            "visibility": "organization",
-            "organization_access": {
-                "manage_policies": true,
-                "manage_policy_overrides": false,
-                "manage_workspaces": false,
-                "manage_vcs_settings": false
-            }
-        },
-        {
-            "name": "project_admin",
-            "members": [
-                "dj@example.com"
-            ]
-        },
-        {
-            "name": "project_read",
-            "members": [
-                "myself@example.com"
-            ]
-        }
     ]
      
 }
