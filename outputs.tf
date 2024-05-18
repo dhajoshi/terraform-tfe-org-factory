@@ -2,6 +2,10 @@ output "organization_name" {
   value       = local.organization_name
   description = "Name of organization being managed."
 }
+
+output "myprojectid" {
+  value = data.tfe_project.tfeproject
+}
 /*
 output "userid_list" {
   value       = { for k, v in tfe_organization_membership.org_members : k => v.user_id }

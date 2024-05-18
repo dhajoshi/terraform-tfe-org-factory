@@ -49,7 +49,7 @@ locals {
     execution_mode      = try(workspace["execution_mode"], "remote")
     speculative_enabled = try(workspace["speculative_enabled"], true)
     vcs_repo            = try(workspace["vcs_repo"], {})
-    project_id          = try(workspace["project_id"], "prj-GMQmXHMWyhe46heo")
+    project_id          = try(workspace["project_id"], "")
   }]
 
 
@@ -90,7 +90,7 @@ resource "tfe_project" "myproject" {
 # Check for project exist
 data "tfe_project" "tfeproject" {
    for_each = { for workspace in local.workspaces : workspace["name"] => workspace }
-   name = try(each.value["project_id"], null)
+   name = each.value["project_id"]
    organization = local.organization_name
    depends_on = [ tfe_project.myproject ]
 }
@@ -110,7 +110,7 @@ resource "tfe_workspace" "workspaces" {
   allow_destroy_plan  = each.value["allow_destroy_plan"]
   execution_mode      = each.value["execution_mode"]
   speculative_enabled = each.value["speculative_enabled"]
-  project_id          = try(data.tfe_project.tfeproject[each.value["project_id"]], null)
+  project_id          = data.tfe_project.tfeproject[each.key].id
  # oauth_token_id      = var.oauth_token_id
 
   # Create a single vcs_repo block if value isn't an empty map

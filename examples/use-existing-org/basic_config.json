@@ -7,7 +7,7 @@
     ],
     "workspaces": [
         {
-            "name": "app1-aws-staging",
+            "name": "onemore",
             "description": "Staging workspace for App 1",
             "project_id": "TestProject"
         },
