@@ -19,11 +19,15 @@ locals {
   # Try to extract the project data
   raw_projects = try(local.org_data.projects, [])
 
+  # Try to extract variables
+  raw_variables = try(local.org_data.variables, {})
+
   # Normalize the Project data
   projects = [for project in local.raw_projects : {
     name        = project["name"]
     description = try(project["descripton"], "No description provided.")
     teams       = try(project["teams"], [])
+    variable_set_name = try(project["variable_set_name"], "")
   }]
 
   # Create a list of project access entries
@@ -75,7 +79,41 @@ locals {
     members             = try(team["members"], [])
   }]
 
+  raw_varset = try(local.org_data.variable_set, {})
 
+  #variable_set_flat = flatten([
+  #  for project, varsets in local.raw_varset : [
+  #    for varset in varset : {
+  #      project = project
+  #      varset = varset
+  #    }
+  #  ]
+  #])
+}
+
+resource "tfe_variable_set" "set" {
+  for_each     = toset(local.raw_varset)
+  name         = each.key
+  organization = local.organization_name
+}
+
+data "tfe_variable_set" "searchset" {
+  for_each     = toset(local.raw_varset)
+  name         = each.key
+  organization = local.organization_name
+  depends_on = [ tfe_variable_set.set ]
+}
+
+# Create Variables and assign them to variable set
+resource "tfe_variable" "var"{
+  for_each        = local.raw_variables
+  key             = each.key
+  value           = each.value.hcl ? replace(jsonencode(each.value.value), "/\"(\\w+?)\":/", "$1=") : try(tostring(each.value.value), null)
+  category        = each.value.category
+  hcl             = each.value.hcl
+  variable_set_id = data.tfe_variable_set.searchset[each.value.variable_set_name].id
+  description     = each.value.description
+  sensitive       = each.value.sensitive
 }
 
 # Use a dedicated project for this workspace
@@ -89,8 +127,19 @@ resource "tfe_project" "myproject" {
 
 # Check for project exist
 data "tfe_project" "tfeproject" {
+   #for_each = { for workspace in local.workspaces : workspace["name"] => workspace }
+   for_each        = {  for project in local.projects : project["name"] => project }
+   #name = each.value["project_id"]
+   name  = each.key
+   organization = local.organization_name
+   depends_on = [ tfe_project.myproject ]
+}
+
+data "tfe_project" "tfeproject1" {
    for_each = { for workspace in local.workspaces : workspace["name"] => workspace }
+   #for_each        = {  for project in local.projects : project["name"] => project }
    name = each.value["project_id"]
+   #name  = each.key
    organization = local.organization_name
    depends_on = [ tfe_project.myproject ]
 }
@@ -110,7 +159,7 @@ resource "tfe_workspace" "workspaces" {
   allow_destroy_plan  = each.value["allow_destroy_plan"]
   execution_mode      = each.value["execution_mode"]
   speculative_enabled = each.value["speculative_enabled"]
-  project_id          = data.tfe_project.tfeproject[each.key].id
+  project_id          = data.tfe_project.tfeproject1[each.key].id
  # oauth_token_id      = var.oauth_token_id
 
   # Create a single vcs_repo block if value isn't an empty map
@@ -123,6 +172,13 @@ resource "tfe_workspace" "workspaces" {
   #    oauth_token_id = each.value.vcs_repo["oauth_token_id"]
     }
   }
+}
+
+resource "tfe_project_variable_set" "pset" {
+  for_each        = {  for project in local.projects : project["name"] => project }
+  project_id      = data.tfe_project.tfeproject[each.key].id
+  variable_set_id = data.tfe_variable_set.searchset[each.value.variable_set_name].id
+#  #depends_on      = [ tfe_project.myproject, tfe_variable_set.set ]
 }
 
 /*

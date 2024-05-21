@@ -2,8 +2,15 @@
     "projects": [
         {
             "name": "TestProject",
-            "organization": "dhajoshi-infra"
+            "organization": "dhajoshi-infra",
+            "variable_set_name": "projectvarset1"
+        },
+        {
+            "name": "HelloProject",
+            "organization": "dhajoshi-infra",
+            "variable_set_name": "projectvarset1"
         }
+
     ],
     "workspaces": [
         {
@@ -39,6 +46,29 @@
              }
         }
  
-    ]
-     
+    ],
+    "variables": {
+        "AWS_REGION": {
+            "category": "env",
+            "description": "AWS Region",
+            "sensitive": false,
+            "hcl": false,
+            "value": "ap-south-1",
+            "variable_set_name": "projvarset2"
+        },
+        "aws_tag_owner": {
+            "category": "terraform",
+            "description": "Owner of all resources",
+            "sensitive": false,
+            "hcl": false,
+            "value": "d.joshi84@gmail.com",
+            "variable_set_name": "hellovarset"
+        }
+    },
+    "variable_set": [ 
+            "projvarset2",
+            "projectvarset1",
+            "hellovarset"
+        ]
+       
 }
